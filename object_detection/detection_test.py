@@ -1,17 +1,12 @@
 import os
+import shutil
 
 import numpy as np
-import shutil
 import tensorflow as tf
-import time
 from PIL import Image
-import pylab
-from matplotlib import pyplot as plt
 
 from object_detection.utils import label_map_util
-from object_detection.utils import visualization_utils as vis_util
 
-# What model to download.
 MODEL_NAME = 'E:/testmodel/ssd_inception_v2_coco_11_06_2017'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
@@ -20,7 +15,7 @@ PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
-NUM_CLASSES = 90
+NUM_CLASSES = 30
 
 detection_graph = tf.Graph()
 with detection_graph.as_default():
@@ -45,7 +40,6 @@ PATH_TO_FIND_IMAGES_DIR = 'E:/picRecord/ori'
 PATH_PROCESS_IMAGES_DIR = 'E:/picRecord/process'
 UN_PROCESS_IMAGE_PATHS = [os.path.join(PATH_TO_FIND_IMAGES_DIR, '{}'.format(i)) for i in
                           os.listdir(PATH_TO_FIND_IMAGES_DIR)]
-IMAGE_SIZE = [12, 8]
 
 
 def checkPerson(boxes, classes, scores):
