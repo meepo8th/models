@@ -75,3 +75,5 @@ with detection_graph.as_default():
                            np.squeeze(classes).astype(np.int32),
                            np.squeeze(scores)):
                 shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
+            else:
+                os.remove(image_path)
