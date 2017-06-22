@@ -1,6 +1,7 @@
 import os
 
 import numpy as np
+import shutil
 import tensorflow as tf
 import time
 from PIL import Image
@@ -44,7 +45,18 @@ PATH_TO_FIND_IMAGES_DIR = 'E:/picRecord/ori'
 PATH_PROCESS_IMAGES_DIR = 'E:/picRecord/process'
 UN_PROCESS_IMAGE_PATHS = [os.path.join(PATH_TO_FIND_IMAGES_DIR, '{}'.format(i)) for i in
                           os.listdir(PATH_TO_FIND_IMAGES_DIR)]
-IMAGE_SIZE=[12,8]
+IMAGE_SIZE = [12, 8]
+
+
+def checkPerson(boxes, classes, scores):
+    for i in (0, scores.__le__(scores) - 1):
+        if (scores[i] < 0.7):
+            break
+        if classes[i] in category_index and category_index[classes[i]]['name'] == "person":
+            return True
+    return False
+
+
 with detection_graph.as_default():
     with tf.Session(graph=detection_graph) as sess:
         for image_path in UN_PROCESS_IMAGE_PATHS:
@@ -59,16 +71,7 @@ with detection_graph.as_default():
             (boxes, scores, classes, num_detections) = sess.run(
                     [boxes, scores, classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
-            vis_util.visualize_boxes_and_labels_on_image_array(
-                    image_np,
-                    np.squeeze(boxes),
-                    np.squeeze(classes).astype(np.int32),
-                    np.squeeze(scores),
-                    category_index,
-                    use_normalized_coordinates=True,
-                    line_thickness=8)
-            print(classes)
-            print("%f" % time.time())
-            plt.figure(figsize=IMAGE_SIZE)
-            plt.imshow(image_np)
-            pylab.show()
+            if checkPerson(np.squeeze(boxes),
+                           np.squeeze(classes).astype(np.int32),
+                           np.squeeze(scores)):
+                shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
