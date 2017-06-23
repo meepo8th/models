@@ -49,7 +49,7 @@ def get_un_process_path():
 
 def checkPerson(classes, scores):
     for i, score in enumerate(scores):
-        if (score < 0.2):
+        if (score < 0.7):
             break
         if classes[i] in category_index and category_index[classes[i]]['name'] == "person":
             return True
@@ -92,7 +92,7 @@ def generateLabel(boxes, classes, scores, image_path, imageSize):
     label_path = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).replace(".jpg", ".xml"))
 
     for i, score in enumerate(scores):
-        if (score > 0.2 and classes[i] in category_index and category_index[classes[i]]['name'] == "person"):
+        if (score > 0.7 and classes[i] in category_index and category_index[classes[i]]['name'] == "person"):
             needBoxes.append(boxes[i])
             needLabels.append(category_index[classes[i]]['name'])
     write2VocFile(needBoxes, needLabels, label_path, os.path.dirname(image_path),
