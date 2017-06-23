@@ -9,7 +9,7 @@ from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
-MODEL_NAME = 'd:/code/testmodel/faster_rcnn_resnet101_coco_11_06_2017'
+MODEL_NAME = 'd:/code/testmodel/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
@@ -73,7 +73,6 @@ def convertPoints2BndBox(points, shape):
 
 
 def write2VocFile(boxes, labels, targetFileName, imgFolderName, imgFileNameWithoutExt, imageSize, imagePath):
-    print(boxes, labels, targetFileName, imgFolderName, imgFileNameWithoutExt, imageSize, imagePath)
     writer = PascalVocWriter(imgFolderName, imgFileNameWithoutExt,
                              imageSize, localImgPath=imagePath)
 
