@@ -9,7 +9,7 @@ from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
-MODEL_NAME = 'E:/testmodel/faster_rcnn_resnet101_coco_11_06_2017'
+MODEL_NAME = 'd:/code/testmodel/faster_rcnn_resnet101_coco_11_06_2017'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
@@ -38,8 +38,8 @@ def load_image_into_numpy_array(image):
             (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'E:/picRecord/ori'
-PATH_PROCESS_IMAGES_DIR = 'E:/picRecord/process'
+PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/ori'
+PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process2'
 
 
 def get_un_process_path():
@@ -57,7 +57,6 @@ def checkPerson(classes, scores):
 
 
 def convertPoints2BndBox(points, shape):
-    print(shape)
     ymin, xmin, ymax, xmax = points
     xmin = xmin * shape[1]
     ymin = ymin * shape[0]
