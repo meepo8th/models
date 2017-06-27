@@ -102,3 +102,8 @@ item {
   id: 20
   name: 'tvmonitor'
 }
+
+item {
+  id: 21
+  name: 'helmet'
+}
