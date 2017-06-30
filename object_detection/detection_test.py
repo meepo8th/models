@@ -40,7 +40,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/ori'
+PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
 
 
 def get_un_process_path():

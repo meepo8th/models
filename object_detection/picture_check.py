@@ -49,7 +49,7 @@ def get_un_process_path():
 
 def checkPerson(classes, scores):
     for i, score in enumerate(scores):
-        if (score < 0.5):
+        if (score < 0.7):
             break
         if classes[i] in category_index and category_index[classes[i]]['name'] == "person":
             return True
@@ -62,6 +62,8 @@ def cleanData(classes, scores, boxes, imageSize):
     for i, score in enumerate(scores):
         if (score < 0.5):
             break
+        if score < 0.7 and "person" == category_index[classes[i]]['name']:
+            break
         if not category_index[classes[i]]['name'] in data.keys():
             data[category_index[classes[i]]['name']] = []
         data[category_index[classes[i]]['name']].append(convertPoints2BndBox(boxes[i], imageSize))
@@ -70,12 +72,13 @@ def cleanData(classes, scores, boxes, imageSize):
 
 # 计算两个矩形的交集
 def getCrossRect(rect1, rect2):
-    return (max(rect1[0], rect2[0]), min(rect1[2], rect2[2]), max(rect1[1], rect2[1]), min(rect1[3], rect2[3]))
+    return (max(rect1[0], rect2[0]), max(rect1[1], rect2[1]), min(rect1[2], rect2[2]), min(rect1[3], rect2[3]))
 
 
 # 计算两个矩形的交集面积
 def getCrossRange(rect1, rect2):
     rect = getCrossRect(rect1, rect2)
+    print(rect)
     if rect[2] >= rect[0] and rect[3] >= rect[1]:
         return (rect[2] - rect[0]) * (rect[3] - rect[1])
     else:
@@ -85,9 +88,9 @@ def getCrossRange(rect1, rect2):
 # 校验一个人是否佩戴安全帽
 def checkElementBox(personBox, helmetBoxes):
     for helmetBox in helmetBoxes:
-        if getCrossRange(helmetBox, personBox) == 0:
-            return False
-    return True
+        if getCrossRange(helmetBox, personBox) > 0:
+            return True
+    return False
 
 
 # 校验是否正确佩戴安全帽(有人且没带安全帽)
@@ -137,7 +140,7 @@ def generateLabel(boxes, classes, scores, image_path, imageSize):
     label_path = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).replace(".jpg", ".xml"))
 
     for i, score in enumerate(scores):
-        if (score > 0.5 and classes[i] in category_index):
+        if (score > 0.7 and classes[i] in category_index):
             needBoxes.append(boxes[i])
             needLabels.append(category_index[classes[i]]['name'])
     write2VocFile(needBoxes, needLabels, label_path, os.path.dirname(image_path),
