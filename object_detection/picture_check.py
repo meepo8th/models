@@ -65,7 +65,6 @@ def cleanData(classes, scores, boxes, imageSize):
         if not category_index[classes[i]]['name'] in data.keys():
             data[category_index[classes[i]]['name']] = []
         data[category_index[classes[i]]['name']].append(convertPoints2BndBox(boxes[i], imageSize))
-    print(data)
     return data
 
 
@@ -77,7 +76,6 @@ def getCrossRect(rect1, rect2):
 # 计算两个矩形的交集面积
 def getCrossRange(rect1, rect2):
     rect = getCrossRect(rect1, rect2)
-    print(rect)
     if rect[2] >= rect[0] and rect[3] >= rect[1]:
         return (rect[2] - rect[0]) * (rect[3] - rect[1])
     else:
@@ -92,7 +90,7 @@ def checkElementBox(personBox, helmetBoxes):
     return True
 
 
-# 校验是否正确佩戴安全帽
+# 校验是否正确佩戴安全帽(有人且没带安全帽)
 def checkPersonWithElement(classes, scores, boxes, imageSize):
     data = cleanData(classes, scores, boxes, imageSize)
     if 'person' in data.keys():
@@ -100,7 +98,7 @@ def checkPersonWithElement(classes, scores, boxes, imageSize):
             if not 'helmet' in data.keys() or not checkElementBox(box, data['helmet']):
                 return False
         return True
-    return False
+    return True
 
 
 def convertPoints2BndBox(points, shape):
