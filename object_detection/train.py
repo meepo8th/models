@@ -71,10 +71,10 @@ flags.DEFINE_integer('worker_replicas', 1, 'Number of worker+trainer '
 flags.DEFINE_integer('ps_tasks', 0,
                      'Number of parameter server tasks. If None, does not use '
                      'a parameter server.')
-flags.DEFINE_string('train_dir', 'E:/picRecord/data/record/train',
+flags.DEFINE_string('train_dir', 'D:/code/data/train/train',
                     'Directory to save the checkpoints and training summaries.')
 
-flags.DEFINE_string('pipeline_config_path', 'E:/picRecord/data/record/faster_rcnn_inception_resnet_v2_atrous_pets.config',
+flags.DEFINE_string('pipeline_config_path', 'D:/code/data/train/faster_rcnn_resnet101_voc07.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file. If provided, other configs are ignored')
 

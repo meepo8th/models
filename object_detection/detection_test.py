@@ -9,13 +9,13 @@ from PIL import Image
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
-MODEL_NAME = 'd:/code/testmodel/faster_rcnn_inception_resnet_v2_atrous_coco_11_06_2017'
+MODEL_NAME = 'd:/code/testmodel/custom_faster_rcnn_resnet_101'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
+PATH_TO_CKPT = MODEL_NAME + '/output_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'pascal_label_map_custom.pbtxt')
 
 NUM_CLASSES = 90
 
@@ -35,11 +35,11 @@ category_index = label_map_util.create_category_index(categories)
 def load_image_into_numpy_array(image):
     (im_width, im_height) = image.size
     return np.array(image.getdata()).reshape(
-            (im_height, im_width, 3)).astype(np.uint8)
+        (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
-PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process2'
+PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/ori'
+PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/ori'
 
 
 def get_un_process_path():
@@ -49,7 +49,7 @@ def get_un_process_path():
 
 def checkPerson(classes, scores):
     for i, score in enumerate(scores):
-        if (score < 0.7):
+        if (score < 0.5):
             break
         if classes[i] in category_index and category_index[classes[i]]['name'] == "person":
             return True
@@ -92,7 +92,7 @@ def generateLabel(boxes, classes, scores, image_path, imageSize):
     label_path = os.path.join(os.path.dirname(image_path), os.path.basename(image_path).replace(".jpg", ".xml"))
 
     for i, score in enumerate(scores):
-        if (score > 0.7 and classes[i] in category_index and category_index[classes[i]]['name'] == "person"):
+        if (score > 0.5 and classes[i] in category_index):
             needBoxes.append(boxes[i])
             needLabels.append(category_index[classes[i]]['name'])
     write2VocFile(needBoxes, needLabels, label_path, os.path.dirname(image_path),
@@ -115,8 +115,8 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 classes = detection_graph.get_tensor_by_name('detection_classes:0')
                 num_detections = detection_graph.get_tensor_by_name('num_detections:0')
                 (boxes, scores, classes, num_detections) = sess.run(
-                        [boxes, scores, classes, num_detections],
-                        feed_dict={image_tensor: image_np_expanded})
+                    [boxes, scores, classes, num_detections],
+                    feed_dict={image_tensor: image_np_expanded})
                 print(time.time())
 
                 if checkPerson(np.squeeze(classes).astype(np.int32),
