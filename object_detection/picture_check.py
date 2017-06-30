@@ -78,7 +78,6 @@ def getCrossRect(rect1, rect2):
 # 计算两个矩形的交集面积
 def getCrossRange(rect1, rect2):
     rect = getCrossRect(rect1, rect2)
-    print(rect)
     if rect[2] >= rect[0] and rect[3] >= rect[1]:
         return (rect[2] - rect[0]) * (rect[3] - rect[1])
     else:
