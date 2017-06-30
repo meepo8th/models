@@ -39,7 +39,7 @@ def load_image_into_numpy_array(image):
 
 
 PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/ori'
-PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/ori'
+PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process'
 
 
 def get_un_process_path():
@@ -56,28 +56,48 @@ def checkPerson(classes, scores):
     return False
 
 
-#整理数据
+# 整理数据
 def cleanData(classes, scores, boxes, imageSize):
-    data={}
+    data = {}
     for i, score in enumerate(scores):
         if (score < 0.5):
             break
         if not category_index[classes[i]]['name'] in data.keys():
-            data[category_index[classes[i]]['name']]=[]
+            data[category_index[classes[i]]['name']] = []
         data[category_index[classes[i]]['name']].append(convertPoints2BndBox(boxes[i], imageSize))
     print(data)
     return data
 
-#校验一个人是否佩戴安全帽
+
+# 计算两个矩形的交集
+def getCrossRect(rect1, rect2):
+    return (max(rect1[0], rect2[0]), min(rect1[2], rect2[2]), max(rect1[1], rect2[1]), min(rect1[3], rect2[3]))
+
+
+# 计算两个矩形的交集面积
+def getCrossRange(rect1, rect2):
+    rect = getCrossRect(rect1, rect2)
+    print(rect)
+    if rect[2] >= rect[0] and rect[3] >= rect[1]:
+        return (rect[2] - rect[0]) * (rect[3] - rect[1])
+    else:
+        return 0
+
+
+# 校验一个人是否佩戴安全帽
 def checkElementBox(personBox, helmetBoxes):
-    pass
+    for helmetBox in helmetBoxes:
+        if getCrossRange(helmetBox, personBox) == 0:
+            return False
+    return True
+
 
 # 校验是否正确佩戴安全帽
-def checkPersonWithElement(classes, scores,boxes,imageSize):
-    data=cleanData(classes, scores,boxes,imageSize)
+def checkPersonWithElement(classes, scores, boxes, imageSize):
+    data = cleanData(classes, scores, boxes, imageSize)
     if 'person' in data.keys():
         for box in data['person']:
-            if not 'helmet' in data.keys() or not checkElementBox(box,data['helmet']):
+            if not 'helmet' in data.keys() or not checkElementBox(box, data['helmet']):
                 return False
         return True
     return False
@@ -146,8 +166,8 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                     feed_dict={image_tensor: image_np_expanded})
                 print(time.time())
 
-                if checkPersonWithElement(np.squeeze(classes).astype(np.int32),
-                               np.squeeze(scores),np.squeeze(boxes),(image.size[1], image.size[0], 3)):
+                if not checkPersonWithElement(np.squeeze(classes).astype(np.int32),
+                                              np.squeeze(scores), np.squeeze(boxes), (image.size[1], image.size[0], 3)):
                     label_path = generateLabel(np.squeeze(boxes), np.squeeze(classes).astype(np.int32),
                                                np.squeeze(scores), image_path, (image.size[1], image.size[0], 3))
                     shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
