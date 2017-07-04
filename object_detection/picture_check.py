@@ -18,7 +18,6 @@ PATH_TO_CKPT = MODEL_NAME + '/output_inference_graph.pb'
 PATH_TO_LABELS = os.path.join('data', 'pascal_label_map_custom.pbtxt')
 
 NUM_CLASSES = 90
-allCount=0
 detection_graph = tf.Graph()
 with detection_graph.as_default():
     od_graph_def = tf.GraphDef()
@@ -148,6 +147,7 @@ def generateLabel(boxes, classes, scores, image_path, imageSize):
 
 
 def detect(UN_PROCESS_IMAGE_PATHS):
+    global allCount
     with detection_graph.as_default():
         with tf.Session(graph=detection_graph) as sess:
             for image_path in UN_PROCESS_IMAGE_PATHS:
@@ -165,7 +165,7 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 (boxes, scores, classes, num_detections) = sess.run(
                     [boxes, scores, classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
-                print(allCount+","+time.time())
+                print("%d,%f"%(allCount,time.time()))
 
                 if not checkPersonWithElement(np.squeeze(classes).astype(np.int32),
                                               np.squeeze(scores), np.squeeze(boxes), (image.size[1], image.size[0], 3)):
@@ -176,7 +176,8 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 else:
                     os.remove(image_path)
 
-
+global allCount
+allCount=0
 while True:
     UN_PROCESS_IMAGE_PATHS = get_un_process_path()
     if len(UN_PROCESS_IMAGE_PATHS) > 0:
