@@ -65,7 +65,7 @@ flags.DEFINE_string('input_type', 'image_tensor', 'Type of input node. Can be '
 flags.DEFINE_string('pipeline_config_path', 'D:/code/data/train/faster_rcnn_resnet101_voc07.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
-flags.DEFINE_string('checkpoint_path', 'D:/code/data/train/train/model.ckpt-90279', 'Optional path to checkpoint file. '
+flags.DEFINE_string('checkpoint_path', 'D:/code/data/train/train/model.ckpt-96662', 'Optional path to checkpoint file. '
                     'If provided, bakes the weights from the checkpoint into '
                     'the graph.')
 flags.DEFINE_string('inference_graph_path', 'D:/code/testmodel/custom_faster_rcnn_resnet_101/output_inference_graph.pb', 'Path to write the output '
