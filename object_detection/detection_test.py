@@ -11,13 +11,11 @@ from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
+PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
+PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process'
 MODEL_NAME = 'd:/code/testmodel/custom_faster_rcnn_resnet_101'
-
-# Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_CKPT = MODEL_NAME + '/output_inference_graph.pb'
-
-# List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'pascal_label_map_custom.pbtxt')
+PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
+PATH_TO_LABELS = os.path.join(MODEL_NAME, 'pascal_label_map.pbtxt')
 
 NUM_CLASSES = 90
 IMAGE_SIZE = (12, 8)

@@ -4,6 +4,7 @@ import shutil
 import numpy as np
 import tensorflow as tf
 import time
+import cv2 as cv
 from PIL import Image
 
 from object_detection.utils import label_map_util
@@ -37,7 +38,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/ori'
+PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
 PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process'
 
 
@@ -55,8 +56,22 @@ def checkPerson(classes, scores):
     return False
 
 
+# 判断清晰度
+def checkClarity(imageBox, image):
+    # pilimage转opcvimage
+    grayImg = cv.cvtColor(load_image_into_numpy_array(image), cv.COLOR_BGR2GRAY)
+    personImg = grayImg[imageBox[1]:imageBox[3], imageBox[0]:imageBox[2]]
+    gray_lap = cv.Laplacian(personImg, cv.CV_16S, ksize=3)
+    dst = cv.convertScaleAbs(gray_lap)
+    print("清晰度%s" % (dst))
+    cv.namedWindow("personImg")
+    cv.imshow("personImg", personImg)
+    cv.waitKey(0)
+    return True
+
+
 # 整理数据
-def cleanData(classes, scores, boxes, imageSize):
+def cleanData(classes, scores, boxes, imageSize, image):
     data = {}
     for i, score in enumerate(scores):
         if (score < 0.5):
@@ -65,7 +80,9 @@ def cleanData(classes, scores, boxes, imageSize):
             break
         if not category_index[classes[i]]['name'] in data.keys():
             data[category_index[classes[i]]['name']] = []
-        data[category_index[classes[i]]['name']].append(convertPoints2BndBox(boxes[i], imageSize))
+        personBox = convertPoints2BndBox(boxes[i], imageSize)
+        if (checkClarity(personBox, image)):
+            data[category_index[classes[i]]['name']].append(personBox)
     return data
 
 
@@ -92,8 +109,8 @@ def checkElementBox(personBox, helmetBoxes):
 
 
 # 校验是否正确佩戴安全帽(有人且没带安全帽)
-def checkPersonWithElement(classes, scores, boxes, imageSize):
-    data = cleanData(classes, scores, boxes, imageSize)
+def checkPersonWithElement(classes, scores, boxes, imageSize, image):
+    data = cleanData(classes, scores, boxes, imageSize, image)
     if 'person' in data.keys():
         for box in data['person']:
             if not 'helmet' in data.keys() or not checkElementBox(box, data['helmet']):
@@ -153,7 +170,7 @@ def detect(UN_PROCESS_IMAGE_PATHS):
             for image_path in UN_PROCESS_IMAGE_PATHS:
                 if not image_path.__contains__(".jpg"):
                     continue;
-                allCount=allCount+1
+                allCount = allCount + 1
                 image = Image.open(image_path)
                 image_np = load_image_into_numpy_array(image)
                 image_np_expanded = np.expand_dims(image_np, axis=0)
@@ -165,10 +182,11 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 (boxes, scores, classes, num_detections) = sess.run(
                     [boxes, scores, classes, num_detections],
                     feed_dict={image_tensor: image_np_expanded})
-                print("%d,%f"%(allCount,time.time()))
+                print("%d,%f" % (allCount, time.time()))
 
                 if not checkPersonWithElement(np.squeeze(classes).astype(np.int32),
-                                              np.squeeze(scores), np.squeeze(boxes), (image.size[1], image.size[0], 3)):
+                                              np.squeeze(scores), np.squeeze(boxes), (image.size[1], image.size[0], 3),
+                                              image):
                     label_path = generateLabel(np.squeeze(boxes), np.squeeze(classes).astype(np.int32),
                                                np.squeeze(scores), image_path, (image.size[1], image.size[0], 3))
                     shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
@@ -176,8 +194,9 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 else:
                     os.remove(image_path)
 
+
 global allCount
-allCount=0
+allCount = 0
 while True:
     UN_PROCESS_IMAGE_PATHS = get_un_process_path()
     if len(UN_PROCESS_IMAGE_PATHS) > 0:
