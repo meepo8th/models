@@ -6,17 +6,18 @@ import tensorflow as tf
 import time
 import cv2 as cv
 from PIL import Image
+import traceback
 
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
-MODEL_NAME = 'd:/code/testmodel/custom_faster_rcnn_resnet_101'
+MODEL_NAME = 'D:/code/testmodel/rfcn_resnet101_coco_11_06_2017'
 
 # Path to frozen detection graph. This is the actual model that is used for the object detection.
-PATH_TO_CKPT = MODEL_NAME + '/output_inference_graph.pb'
+PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
 
 # List of the strings that is used to add correct label for each box.
-PATH_TO_LABELS = os.path.join('data', 'pascal_label_map_custom.pbtxt')
+PATH_TO_LABELS = os.path.join('data', 'mscoco_label_map.pbtxt')
 
 NUM_CLASSES = 90
 detection_graph = tf.Graph()
@@ -38,8 +39,9 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
-PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process'
+PATH_TO_FIND_IMAGES_DIR = 'D:/pic'
+PATH_PROCESS_IMAGES_DIR = 'D:/pic/person'
+PATH_PROCESS_FAILED_IMAGES_DIR = 'D:/pic/other'
 
 
 def get_un_process_path():
@@ -168,31 +170,34 @@ def detect(UN_PROCESS_IMAGE_PATHS):
     with detection_graph.as_default():
         with tf.Session(graph=detection_graph) as sess:
             for image_path in UN_PROCESS_IMAGE_PATHS:
-                if not image_path.__contains__(".jpg"):
-                    continue;
-                allCount = allCount + 1
-                image = Image.open(image_path)
-                image_np = load_image_into_numpy_array(image)
-                image_np_expanded = np.expand_dims(image_np, axis=0)
-                image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
-                boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
-                scores = detection_graph.get_tensor_by_name('detection_scores:0')
-                classes = detection_graph.get_tensor_by_name('detection_classes:0')
-                num_detections = detection_graph.get_tensor_by_name('num_detections:0')
-                (boxes, scores, classes, num_detections) = sess.run(
-                    [boxes, scores, classes, num_detections],
-                    feed_dict={image_tensor: image_np_expanded})
-                print("%d,%f" % (allCount, time.time()))
+                try:
+                    if not image_path.__contains__(".jpg"):
+                        continue;
+                    allCount = allCount + 1
+                    image = Image.open(image_path)
+                    image_np = load_image_into_numpy_array(image)
+                    image_np_expanded = np.expand_dims(image_np, axis=0)
+                    image_tensor = detection_graph.get_tensor_by_name('image_tensor:0')
+                    boxes = detection_graph.get_tensor_by_name('detection_boxes:0')
+                    scores = detection_graph.get_tensor_by_name('detection_scores:0')
+                    classes = detection_graph.get_tensor_by_name('detection_classes:0')
+                    num_detections = detection_graph.get_tensor_by_name('num_detections:0')
+                    (boxes, scores, classes, num_detections) = sess.run(
+                        [boxes, scores, classes, num_detections],
+                        feed_dict={image_tensor: image_np_expanded})
+                    print("%d,%f" % (allCount, time.time()))
 
-                if not checkPersonWithElement(np.squeeze(classes).astype(np.int32),
-                                              np.squeeze(scores), np.squeeze(boxes), (image.size[1], image.size[0], 3),
-                                              image):
-                    label_path = generateLabel(np.squeeze(boxes), np.squeeze(classes).astype(np.int32),
-                                               np.squeeze(scores), image_path, (image.size[1], image.size[0], 3))
-                    shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
-                    shutil.move(label_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(label_path)))
-                else:
-                    os.remove(image_path)
+                    if checkPerson(np.squeeze(classes).astype(np.int32),
+                                   np.squeeze(scores)):
+                        shutil.move(image_path, os.path.join(PATH_PROCESS_IMAGES_DIR, os.path.basename(image_path)))
+                    else:
+                        if "" == PATH_PROCESS_FAILED_IMAGES_DIR:
+                            os.remove(image_path)
+                        else:
+                            shutil.move(image_path,
+                                        os.path.join(PATH_PROCESS_FAILED_IMAGES_DIR, os.path.basename(image_path)))
+                except Exception:
+                    print("%s,%s" % (image_path, traceback.format_exc()))
 
 
 global allCount

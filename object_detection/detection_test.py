@@ -11,11 +11,9 @@ from object_detection.utils import visualization_utils as vis_util
 from object_detection.utils import label_map_util
 from object_detection.utils.pascal_voc_io import PascalVocWriter
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
-PATH_PROCESS_IMAGES_DIR = 'd:/code/picRecord/process'
-MODEL_NAME = 'd:/code/testmodel/custom_faster_rcnn_resnet_101'
+MODEL_NAME = 'D:/code/testmodel/ssd_inception_v2_coco_11_06_2017'
 PATH_TO_CKPT = MODEL_NAME + '/frozen_inference_graph.pb'
-PATH_TO_LABELS = os.path.join(MODEL_NAME, 'pascal_label_map.pbtxt')
+PATH_TO_LABELS = os.path.join(MODEL_NAME, 'label_map.pbtxt')
 
 NUM_CLASSES = 90
 IMAGE_SIZE = (12, 8)
@@ -38,7 +36,7 @@ def load_image_into_numpy_array(image):
         (im_height, im_width, 3)).astype(np.uint8)
 
 
-PATH_TO_FIND_IMAGES_DIR = 'd:/code/picRecord/process'
+PATH_TO_FIND_IMAGES_DIR = 'd:/pic/other'
 
 
 def get_un_process_path():
@@ -75,7 +73,7 @@ def detect(UN_PROCESS_IMAGE_PATHS):
                 plt.imshow(image_np)
                 pylab.show()
 
+
 UN_PROCESS_IMAGE_PATHS = get_un_process_path()
 if len(UN_PROCESS_IMAGE_PATHS) > 0:
     detect(UN_PROCESS_IMAGE_PATHS)
-
