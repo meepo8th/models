@@ -62,13 +62,13 @@ flags = tf.app.flags
 
 flags.DEFINE_string('input_type', 'image_tensor', 'Type of input node. Can be '
                     'one of [`image_tensor` `tf_example_proto`]')
-flags.DEFINE_string('pipeline_config_path', 'D:/code/data/train/faster_rcnn_resnet101_voc07.config',
+flags.DEFINE_string('pipeline_config_path', 'D:/code/data/data_0725/record/faster_rcnn_resnet101_voc07.config',
                     'Path to a pipeline_pb2.TrainEvalPipelineConfig config '
                     'file.')
-flags.DEFINE_string('checkpoint_path', 'D:/code/data/train/train/model.ckpt-122550', 'Optional path to checkpoint file. '
+flags.DEFINE_string('checkpoint_path', 'D:/code/data/data_0725/train/model.ckpt-74311', 'Optional path to checkpoint file. '
                     'If provided, bakes the weights from the checkpoint into '
                     'the graph.')
-flags.DEFINE_string('inference_graph_path', 'D:/code/testmodel/custom_faster_rcnn_resnet_101/output_inference_graph.pb', 'Path to write the output '
+flags.DEFINE_string('inference_graph_path', 'D:/code/testmodel/custom_faster_rcnn_resnet_101/frozen_inference_graph.pb', 'Path to write the output '
                     'inference graph.')
 
 FLAGS = flags.FLAGS
